@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-class SeCo {
+class Synapse {
     public:
         float *getSetPoints();
     private:
