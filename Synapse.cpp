@@ -24,6 +24,7 @@ bool Synapse::waitHeader() {
         }
         else return false;
     }
+    return false;
 }
 
 // bool checkMsg(uint8_t *buff) {
@@ -52,20 +53,21 @@ uint8_t* Synapse::getMessage() {
         }
         else return NULL;
     }
+    return NULL;
 }
 
 float* Synapse::getSetPoints() {
     uint8_t* message;
     binaryFloat data;
     static float setPointArray[6];
-    int i = 0;
+    unsigned int i = 0;
     while(!waitHeader()) {}
     message = getMessage();
     while(i<messageSize) {
-        for(int j=0;j<6;j++) {
+        for(unsigned int j=0;j<6;j++) {
             if(message[i]==finger_address[j]) {
                 i++;
-                for(int k=0;k<dataSize;k++) {
+                for(unsigned int k=0;k<dataSize;k++) {
                     data.binary[k] = message[i];
                     i++;
                 }
