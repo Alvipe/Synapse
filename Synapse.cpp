@@ -41,6 +41,7 @@ uint8_t* Synapse::getMessage() {
     static uint8_t message[messageSize];
     uint8_t rec;
     unsigned int i=0;
+    while(!waitHeader()) {}
     while(Serial.available()>0) {
         rec = Serial.read();
         // delayMicroseconds(50);
@@ -61,7 +62,6 @@ float* Synapse::getSetPoints() {
     binaryFloat data;
     static float setPointArray[6];
     unsigned int i=0, j, k;
-    while(!waitHeader()) {}
     message = getMessage();
     for(j=0;j<6;j++) {
         if(message[i]==finger_address[j]) {

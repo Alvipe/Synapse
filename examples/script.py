@@ -10,28 +10,18 @@ import time
 import serial
 import struct
 
-deviceName = raw_input("Which microcontroller are you using, (A)rduino or (T)eensy?: ")
-
-if deviceName == 'A':
-    portname_start = '/dev/ttyUSB'
-elif deviceName == 'T':
-    portname_start = '/dev/ttyACM'
-
-# Try opening serial ports /dev/ttyUSB0->9
-for i in range (0, 10):
-    # Change i to a string
-    portnum = str(i)
-    # Append "i" to the end of portname_start
-    portname_full=''.join([portname_start,portnum])
-    # Try to open the serial port with i, if this fails try again with i+1
-    try:
-        ser = serial.Serial(portname_full, 115200, timeout =1)
-        break
-    except:
-        # If we reach i==9 and no port has been opened, exit and print error message
-        if (i==9):
-            print "No Serial Port Found"
-            sys.exit(0)
+portname_start = ["/dev/ttyUSB","/dev/ttyACM","COM"]
+for port in portname_start:
+    for i in range(10):
+        portnum = str(i)
+        portname_full = ''.join([port,portnum])
+        try:
+            ser = serial.Serial(portname_full, 115200, timeout=1)
+            break
+        except:
+            if(i == 9 and port == "COM"):
+                print("No serial port found")
+                sys.exit(0)
 
 #ser.setDTR(False)
 #time.sleep(1)
