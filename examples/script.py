@@ -10,6 +10,9 @@ import time
 import serial
 import struct
 
+if hasattr(__builtins__, 'raw_input'):
+    input = raw_input
+
 portname_start = ["/dev/ttyUSB","/dev/ttyACM","COM"]
 for port in portname_start:
     for i in range(10):
@@ -48,10 +51,46 @@ def send_setpoint_list(setPointList):
     ser.write(message)
     return message
 
+def getMessage():
+    header = chr(0xAA)
+    footer = chr(0xBB)
+    message = ''
+    rec = chr(0x00)
+    messageSize = 30
+    i = 0
+    while(ser.read()!=header): None
+    while(ser.inWaiting()>0):
+        rec = ser.read()
+        if(rec!=footer and i<messageSize):
+            message += rec
+            i += 1
+        elif(rec==footer):
+            return message
+
+def getData():
+    message = ''
+    dataList = []
+    finger_address = [chr(0x01),chr(0x02),chr(0x03),chr(0x04),chr(0x05),chr(0x06)]
+    i = 0
+    message = getMessage()
+    for j in range(6):
+        if(message[i]==finger_address[j]):
+            data = ''
+            i += 1
+            for k in range(4):
+                data += message[i]
+                i += 1
+            data = round(struct.unpack('f',data)[0],4)
+            dataList.append(data)
+            print("Oh yeah!")
+        else:
+            print("Ohhh :_(")
+
 while(1):
-    action = raw_input("What do you want to do, (c)lose or (o)pen the hand?: ")
-    if action == 'c':
-        setPointList = [10.0,11.1,12.2,13.3,14.4,15.5]
-    elif action == 'o':
-        setPointList = [10.0,0.0,0.0,0.0,0.0,0.0]
-    message = send_setpoint_list(setPointList)
+    # action = input("What do you want to do, (c)lose or (o)pen the hand?: ")
+    # if action == 'c':
+    #     setPointList = [10.0,11.1,12.2,13.3,14.4,15.5]
+    # elif action == 'o':
+    #     setPointList = [10.0,0.0,0.0,0.0,0.0,0.0]
+    # message = send_setpoint_list(setPointList)
+    getData()
