@@ -6,7 +6,7 @@ Created on Wed Jul 27 02:05:48 2016
 """
 
 import sys
-import time
+import timeit
 import serial
 import struct
 
@@ -26,28 +26,16 @@ for port in portname_start:
                 print("No serial port found")
                 sys.exit(0)
 
-#ser.setDTR(False)
-#time.sleep(1)
-#ser.flushInput()
-#ser.setDTR(True)
-#time.sleep(5)
-
 def send_setpoint_list(setPointList):
-    data = []
+    data = ''
     finger_address = [chr(0x01),chr(0x02),chr(0x03),chr(0x04),chr(0x05),chr(0x06)]
     header = chr(0xAA)
     footer = chr(0xBB)
-    check = 0x00
-    for i in range(len(setPointList)):
-        data.append(struct.pack('f',float(setPointList[i])))
     message = header
-    for j in range(len(setPointList)):
-        message += finger_address[j] + data[j]
-        for k in range(len(data[j])):
-            check = check^ord(data[j][k])
-    check = chr(check)
+    for i in range(len(setPointList)):
+        data = struct.pack('f',float(setPointList[i]))
+        message += finger_address[i] + data
     message += footer
-#    message += check + footer
     ser.write(message)
     return message
 
@@ -55,16 +43,16 @@ def getMessage():
     header = chr(0xAA)
     footer = chr(0xBB)
     message = ''
-    rec = chr(0x00)
+    inByte = chr(0x00)
     messageSize = 30
     i = 0
     while(ser.read()!=header): None
     while(ser.inWaiting()>0):
-        rec = ser.read()
-        if(rec!=footer and i<messageSize):
-            message += rec
+        inByte = ser.read()
+        if(inByte!=footer and i<messageSize):
+            message += inByte
             i += 1
-        elif(rec==footer):
+        elif(inByte==footer):
             return message
 
 def getData():
@@ -82,15 +70,23 @@ def getData():
                 i += 1
             data = round(struct.unpack('f',data)[0],4)
             dataList.append(data)
-            print("Oh yeah!")
-        else:
-            print("Ohhh :_(")
+    return dataList
 
 while(1):
-    # action = input("What do you want to do, (c)lose or (o)pen the hand?: ")
-    # if action == 'c':
-    #     setPointList = [10.0,11.1,12.2,13.3,14.4,15.5]
-    # elif action == 'o':
-    #     setPointList = [10.0,0.0,0.0,0.0,0.0,0.0]
-    # message = send_setpoint_list(setPointList)
-    getData()
+    dataList =[]
+    command = input("Do you want to (s)end or to (r)eceive data?: ")
+    if command == 's':
+        ser.write(command)
+        action = input("What do you want to do, (c)lose or (o)pen the hand?: ")
+        if action == 'c':
+            setPointList = [10.0,11.1,12.2,13.3,14.4,15.5]
+        elif action == 'o':
+            setPointList = [10.0,0.0,0.0,0.0,0.0,0.0]
+        message = send_setpoint_list(setPointList)
+    elif command == 'r':
+        ser.write(command)
+        dataList = getData()
+        if(dataList[0]==10.0 and dataList[1]==11.1 and dataList[2]==12.2 and dataList[3]==13.3 and dataList[4]==14.4 and dataList[5]==15.5):
+            print("Oh yeah!")
+        else:
+            print("Oh no!")
