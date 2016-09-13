@@ -36,5 +36,4 @@ install:
     - pip install -U platformio
 
 script:
-    - cd src/Arduino
-    - platformio ci --lib="." --board=teensy31
+    - platformio ci --lib="/src/Arduino" --board=teensy31
