@@ -1,6 +1,6 @@
 #include <Synapse.h>
 
-unsigned int dataPoints = 6;
+static const unsigned int dataPoints = 6;
 long baudRate = 115200;
 Synapse dataLink(Serial);
 int ledPin = 13;
@@ -27,7 +27,7 @@ void loop() {
             }
             break;
         case 'r':
-            datalink.writeDataArray(&positionArray[0]);
+            dataLink.writeDataArray(&positionArray[0]);
             break;
     }
 }
