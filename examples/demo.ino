@@ -1,22 +1,24 @@
 #include <Synapse.h>
 
+static const unsigned int dataPoints = 6;
+long baudRate = 115200;
+Synapse dataLink(Serial);
 int ledPin = 13;
-Synapse junction;
 
 void setup() {
     pinMode(ledPin, OUTPUT);
     digitalWrite(13, LOW);
-    Serial.begin(115200);
+    Serial.begin(baudRate);
 }
 
 void loop() {
-    float* setPointArray;
-    float positionArray[6] = {10.0,11.1,12.2,13.3,14.4,15.5};
+    float setPointArray[dataPoints];
+    float positionArray[dataPoints] = {10.0,11.1,12.2,13.3,14.4,15.5};
     while(!Serial.available());
     char command = Serial.read();
     switch(command) {
         case 's':
-            setPointArray = junction.getSetPoints();
+            dataLink.readSetPoints(&setPointArray[0]);
             if(setPointArray[0]==10.0 && setPointArray[1]==11.1 && setPointArray[2]==12.2 && setPointArray[3]==13.3 && setPointArray[4]==14.4 && setPointArray[5]==15.5) {
                 digitalWrite(ledPin, HIGH);
             }
@@ -25,7 +27,7 @@ void loop() {
             }
             break;
         case 'r':
-            junction.write(positionArray);
+            dataLink.writeDataArray(&positionArray[0]);
             break;
     }
 }
